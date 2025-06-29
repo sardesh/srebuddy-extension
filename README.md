@@ -141,17 +141,20 @@ See [MCP_CONFIGURATION.md](./MCP_CONFIGURATION.md) for detailed setup instructio
 ### Setup Instructions
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/srebuddy-extension.git
    cd srebuddy-extension
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Development workflow**
+
    ```bash
    npm run compile          # Compile TypeScript and bundle with esbuild
    npm run watch           # Watch mode for development
@@ -161,6 +164,7 @@ See [MCP_CONFIGURATION.md](./MCP_CONFIGURATION.md) for detailed setup instructio
    ```
 
 4. **Launch extension for testing**
+
    - Press `F5` to launch in Extension Development Host
    - Or run: `code --extensionDevelopmentPath=.`
 

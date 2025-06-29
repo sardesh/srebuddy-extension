@@ -31,15 +31,18 @@ Thank you for your interest in contributing to SreBuddy! This document provides 
 ### Development Workflow
 
 1. **Start development**:
+
    ```bash
    npm run watch    # Watch mode for auto-compilation
    ```
 
 2. **Test the extension**:
+
    - Press `F5` in VS Code to launch Extension Development Host
    - Test your changes with `@srebuddy` in Copilot Chat
 
 3. **Run checks**:
+
    ```bash
    npm run lint         # ESLint
    npm run check-types  # TypeScript type checking
@@ -118,13 +121,13 @@ Extend `SreTaskParser` in `src/sreTaskParser.ts` to handle new command patterns:
 
 ```typescript
 // Add new command recognition
-if (input.includes('new-command')) {
-    return {
-        command: 'new-command',
-        target: extractTarget(input),
-        environment: extractEnvironment(input),
-        riskLevel: assessRisk(input)
-    };
+if (input.includes("new-command")) {
+  return {
+    command: "new-command",
+    target: extractTarget(input),
+    environment: extractEnvironment(input),
+    riskLevel: assessRisk(input),
+  };
 }
 ```
 
@@ -141,10 +144,12 @@ Enhance `SreBuddyChatParticipant` in `src/chatParticipant.ts`:
 ### Manual Testing
 
 1. **Launch Extension Development Host**:
+
    - Press `F5` in VS Code
    - Open Copilot Chat in the development instance
 
 2. **Test scenarios**:
+
    ```
    @srebuddy implement prometheus monitoring
    @srebuddy configure kubernetes cluster
@@ -196,10 +201,10 @@ async parseTask(input: string): Promise<SreTask> {
 Use the structured logger:
 
 ```typescript
-this.logger.info('Operation completed successfully');
-this.logger.warn('Potential issue detected');
-this.logger.error('Operation failed:', error);
-this.logger.debug('Detailed debug information');
+this.logger.info("Operation completed successfully");
+this.logger.warn("Potential issue detected");
+this.logger.error("Operation failed:", error);
+this.logger.debug("Detailed debug information");
 ```
 
 ## 🔄 Submission Process
@@ -207,11 +212,13 @@ this.logger.debug('Detailed debug information');
 ### Before Submitting
 
 1. **Test thoroughly**:
+
    - Manual testing in Extension Development Host
    - Run all automated tests
    - Test with different MCP server configurations
 
 2. **Code quality**:
+
    ```bash
    npm run lint
    npm run check-types
@@ -226,11 +233,13 @@ this.logger.debug('Detailed debug information');
 ### Pull Request Guidelines
 
 1. **Create descriptive PR title**:
+
    - `feat: add support for Docker Swarm deployments`
    - `fix: resolve MCP server connection timeout`
    - `docs: update installation instructions`
 
 2. **Provide detailed description**:
+
    - What changes were made
    - Why the changes were necessary
    - How to test the changes
@@ -252,6 +261,7 @@ type(scope): description
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -261,6 +271,7 @@ Types:
 - `chore`: Maintenance
 
 Examples:
+
 ```
 feat(mcp): add support for Slack MCP server
 fix(parser): handle edge case in task parsing
@@ -295,6 +306,7 @@ docs(readme): update installation instructions
 ### Bug Reports
 
 Include:
+
 - VS Code version
 - Extension version
 - Steps to reproduce
@@ -305,6 +317,7 @@ Include:
 ### Feature Requests
 
 Include:
+
 - Use case description
 - Proposed solution
 - Alternative approaches considered
@@ -313,6 +326,7 @@ Include:
 ## 🎉 Recognition
 
 Contributors will be:
+
 - Listed in CONTRIBUTORS.md
 - Mentioned in release notes
 - Acknowledged in documentation

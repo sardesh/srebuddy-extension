@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Core Features
+
 - GitHub Copilot Chat integration with `@srebuddy` participant
 - Dynamic SRE prompt templates loaded from `.github/copilot-instructions.md`
 - Support for five main SRE commands: implement, configure, monitor, deploy, troubleshoot
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive MCP (Model Context Protocol) server support
 
 #### MCP Server Integration
+
 - Support for both local (npx-based) and remote (HTTP-based) MCP servers
 - Pre-configured default servers:
   - Filesystem server (`npx @modelcontextprotocol/server-filesystem`)
@@ -26,15 +28,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable support for API keys and configuration
 
 #### Workspace Integration
+
 - Automatic creation of `.github/copilot-instructions.md` in each workspace
 - Manual setup command: "SreBuddy: Setup Prompt Templates"
 - Extension activation on startup for seamless workspace setup
 
 #### Agent Mode
+
 - Command Palette integration with dedicated SRE commands
 - Interactive task execution via Command Palette
 
 ### Technical Details
+
 - TypeScript implementation with strict type checking
 - ESBuild bundling for optimized performance (~83KB)
 - Comprehensive logging system with configurable output levels
