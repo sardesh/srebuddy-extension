@@ -75,12 +75,22 @@
         ]
       }
     ],
+    "configuration": {
+      "title": "SreBuddy",
+      "properties": {
+        "srebuddy.enableLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable detailed logging for debugging"
+        },
+        "srebuddy.agentMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Agent mode commands in Command Palette"
+        }
+      }
+    },
     "commands": [
-      {
-        "command": "srebuddy.configure",
-        "title": "Configure SreBuddy MCP Servers",
-        "category": "SreBuddy"
-      },
       {
         "command": "srebuddy.implementTask",
         "title": "Implement SRE Task",
@@ -111,106 +121,7 @@
         "title": "Setup Prompt Templates",
         "category": "SreBuddy"
       }
-    ],
-    "configuration": {
-      "title": "SreBuddy",
-      "properties": {
-        "srebuddy.mcpServers": {
-          "type": "array",
-          "default": [
-            {
-              "name": "filesystem",
-              "type": "local",
-              "command": "npx",
-              "args": ["@modelcontextprotocol/server-filesystem", "/"],
-              "description": "Local filesystem access for documentation"
-            },
-            {
-              "name": "github",
-              "type": "local",
-              "command": "npx",
-              "args": ["@modelcontextprotocol/server-github"],
-              "env": {
-                "GITHUB_PERSONAL_ACCESS_TOKEN": ""
-              },
-              "description": "GitHub repository access (requires GITHUB_PERSONAL_ACCESS_TOKEN)"
-            },
-            {
-              "name": "brave-search",
-              "type": "local",
-              "command": "npx",
-              "args": ["@modelcontextprotocol/server-brave-search"],
-              "env": {
-                "BRAVE_API_KEY": ""
-              },
-              "description": "Brave Search API access (requires BRAVE_API_KEY)"
-            }
-          ],
-          "description": "List of MCP server configurations for accessing internal documentation",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Name of the MCP server"
-              },
-              "type": {
-                "type": "string",
-                "enum": ["local", "remote"],
-                "default": "local",
-                "description": "Type of MCP server (local uses npx command, remote uses URL)"
-              },
-              "command": {
-                "type": "string",
-                "description": "Command to run for local servers (e.g., npx)"
-              },
-              "args": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Arguments for the local command"
-              },
-              "url": {
-                "type": "string",
-                "description": "URL of the remote MCP server"
-              },
-              "apiKey": {
-                "type": "string",
-                "description": "API key for authentication (remote servers)"
-              },
-              "env": {
-                "type": "object",
-                "description": "Environment variables for local servers"
-              },
-              "description": {
-                "type": "string",
-                "description": "Description of what this server provides"
-              }
-            },
-            "required": ["name", "type"],
-            "anyOf": [
-              {
-                "properties": {"type": {"const": "local"}},
-                "required": ["command", "args"]
-              },
-              {
-                "properties": {"type": {"const": "remote"}},
-                "required": ["url"]
-              }
-            ]
-          }
-        },
-        "srebuddy.enableLogging": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable detailed logging for debugging"
-        },
-        "srebuddy.agentMode": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable Agent mode commands in Command Palette"
-        }
-      }
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -230,7 +141,6 @@
     "ovsx:publish": "ovsx publish"
   },
   "devDependencies": {
-    "@types/axios": "^0.9.36",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.101.0",
@@ -246,7 +156,6 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.13.2",
-    "axios": "^1.10.0"
+    "@modelcontextprotocol/sdk": "^1.13.2"
   }
 }

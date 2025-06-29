@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { McpServerManager, DocumentationSearch } from './mcpServerManager';
+import { McpServerManager } from './mcpServerManager';
 import { SreTaskParser, SreTaskType, SreImplementationPlan, SreTaskContext } from './sreTaskParser';
 import { Logger } from './logger';
 import { SrePromptLoader } from './srePromptLoader';
@@ -356,41 +356,20 @@ export class SreBuddyChatParticipant {
         
         if (token.isCancellationRequested) {return;}
         
-        // Search for documentation
-        const searchResult = await this.mcpServerManager.searchDocumentation({
-            query: prompt,
-            maxResults: 5
-        });
-
-        if (searchResult.success && searchResult.data) {
-            stream.markdown('## 📚 **Documentation Results**\\n\\n');
-            
-            if (Array.isArray(searchResult.data)) {
-                for (const doc of searchResult.data) {
-                    stream.markdown(`### ${doc.title || 'Documentation'}\\n`);
-                    stream.markdown(`${doc.content || doc.summary || 'No content available'}\\n\\n`);
-                    
-                    if (doc.url) {
-                        stream.markdown(`[View Full Documentation](${doc.url})\\n\\n`);
-                    }
-                }
-            } else {
-                stream.markdown(`${searchResult.data}\\n\\n`);
+        stream.markdown('## 📚 **Documentation Search**\n\n');
+        stream.markdown(`Documentation search is now handled through VS Code's native MCP integration.\n\n`);
+        stream.markdown(`**Search Query**: ${prompt}\n\n`);
+        stream.markdown('The MCP servers configured for SreBuddy will provide documentation context automatically through VS Code\'s language model integration.\n\n');
+        
+        // Show available MCP servers
+        const serverStatus = await this.mcpServerManager.getServerStatus();
+        if (serverStatus.length > 0) {
+            stream.markdown('**Available MCP Servers**:\n');
+            for (const server of serverStatus) {
+                stream.markdown(`- ✅ ${server}\n`);
             }
         } else {
-            stream.markdown(`❌ **No documentation found**: ${searchResult.error || 'Unknown error'}\\n\\n`);
-            
-            // Fallback to generating basic guidance
-            stream.markdown('## 💡 **General Guidance**\\n\\n');
-            stream.markdown(`Here are some general steps for working with "${prompt}":
-
-1. **Research**: Review official documentation and best practices
-2. **Plan**: Create a detailed implementation plan
-3. **Test**: Implement in a test environment first
-4. **Deploy**: Roll out to production with proper monitoring
-5. **Validate**: Verify the implementation meets requirements
-
-Use \`@srebuddy implement ${prompt}\` for detailed implementation steps.`);
+            stream.markdown('⚠️ No MCP servers currently configured. Please configure MCP servers in VS Code settings.\n');
         }
     }
 
@@ -471,88 +450,6 @@ Use \`@srebuddy implement ${prompt}\` for detailed implementation steps.`);
         );
         
         return followups;
-    }
-
-    /**
-     * Show configuration UI for MCP servers
-     */
-    async showConfigurationUI(): Promise<void> {
-        const options: vscode.QuickPickItem[] = [
-            {
-                label: '🔧 Configure MCP Servers',
-                description: 'Set up connections to internal documentation servers'
-            },
-            {
-                label: '🧪 Test MCP Connections',
-                description: 'Test connectivity to configured MCP servers'
-            },
-            {
-                label: '📊 View Logs',
-                description: 'Show SreBuddy extension logs'
-            },
-            {
-                label: '📚 View Documentation',
-                description: 'Open SreBuddy documentation'
-            }
-        ];
-
-        const selection = await vscode.window.showQuickPick(options, {
-            placeHolder: 'Choose a configuration option'
-        });
-
-        if (!selection) {
-            return;
-        }
-
-        switch (selection.label) {
-            case '🔧 Configure MCP Servers':
-                await vscode.commands.executeCommand('workbench.action.openSettings', 'srebuddy.mcpServers');
-                break;
-            case '🧪 Test MCP Connections':
-                await this.testMcpConnections();
-                break;
-            case '📊 View Logs':
-                this.logger.show();
-                break;
-            case '📚 View Documentation':
-                vscode.env.openExternal(vscode.Uri.parse('https://github.com/srebuddy/vscode-extension'));
-                break;
-        }
-    }
-
-    /**
-     * Test MCP server connections
-     */
-    private async testMcpConnections(): Promise<void> {
-        vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: 'Testing MCP Server Connections...',
-            cancellable: false
-        }, async (progress) => {
-            const results = await this.mcpServerManager.testConnections();
-            const servers = this.mcpServerManager.getConfiguredServers();
-            
-            if (servers.length === 0) {
-                vscode.window.showWarningMessage('No MCP servers configured. Please configure servers in extension settings.');
-                return;
-            }
-            
-            let successCount = 0;
-            let message = 'MCP Server Connection Results:\\n\\n';
-            
-            for (const server of servers) {
-                const isConnected = results.get(server) || false;
-                const status = isConnected ? '✅ Connected' : '❌ Failed';
-                message += `${server}: ${status}\\n`;
-                if (isConnected) {successCount++;}
-            }
-            
-            if (successCount === servers.length) {
-                vscode.window.showInformationMessage(`All ${successCount} MCP servers are connected successfully!`);
-            } else {
-                vscode.window.showWarningMessage(`${successCount}/${servers.length} MCP servers connected. Check logs for details.`);
-            }
-        });
     }
 
     /**
@@ -749,21 +646,11 @@ Use \`@srebuddy implement ${prompt}\` for detailed implementation steps.`);
             for (const query of searchQueries) {
                 if (token.isCancellationRequested) { break; }
                 
-                try {
-                    const searchResult = await this.mcpServerManager.searchDocumentation({
-                        query: query,
-                        maxResults: 2
-                    });
-
-                    if (searchResult.success && searchResult.data) {
-                        const formattedDocs = this.formatDocumentationResults(searchResult.data);
-                        if (formattedDocs) {
-                            allDocumentation += `\n\n## Documentation for "${query}":\n${formattedDocs}`;
-                        }
-                    }
-                } catch (error) {
-                    this.logger.warn(`Failed to search documentation for query "${query}":`, error);
-                }
+                // With VS Code's native MCP integration, documentation context 
+                // is automatically provided through the language model
+                // We'll indicate that documentation context is available
+                allDocumentation += `\n\n## Documentation Context Available for "${query}"\n`;
+                allDocumentation += `MCP servers provide relevant documentation automatically.\n`;
             }
 
             return allDocumentation.trim();

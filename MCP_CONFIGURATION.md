@@ -1,100 +1,102 @@
 # MCP Server Configuration Guide
 
-## Default MCP Servers
+## Overview
 
-The SreBuddy extension comes with three pre-configured MCP servers that use `npx` commands:
+SreBuddy leverages VS Code's native MCP (Model Context Protocol) system and automatically configures MCP servers on first activation. No manual setup required!
 
-### 1. Filesystem Server
+## How It Works
 
-- **Name**: `filesystem`
-- **Command**: `npx @modelcontextprotocol/server-filesystem /`
-- **Purpose**: Provides access to local filesystem for documentation
-- **Configuration**: No additional setup required
+1. **Automatic Installation**: When you first activate SreBuddy, it will prompt you to install default MCP servers
+2. **Native Integration**: Uses VS Code's built-in MCP system for optimal performance
+3. **Seamless Experience**: Just use `@srebuddy` in GitHub Copilot Chat
 
-### 2. GitHub Server
+## Default MCP Server
 
-- **Name**: `github`
-- **Command**: `npx @modelcontextprotocol/server-github`
-- **Purpose**: Access GitHub repositories for documentation
-- **Setup Required**: Set `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable
+SreBuddy includes one essential MCP server to get you started:
 
-### 3. Brave Search Server
+### SQLite Server (`srebuddy-sqlite`)
 
-- **Name**: `brave-search`
-- **Command**: `npx @modelcontextprotocol/server-brave-search`
-- **Purpose**: Web search capabilities via Brave Search API
-- **Setup Required**: Set `BRAVE_API_KEY` environment variable
+- **Purpose**: Query and explore SQLite databases in your workspace
+- **Package**: `@modelcontextprotocol/server-sqlite`
+- **Requirements**: None - works out of the box
 
-## How to Configure
+## First-Time Setup
 
-1. Open VS Code Settings (Cmd/Ctrl + ,)
-2. Search for "srebuddy mcp"
-3. Modify the "Srebuddy: Mcp Servers" setting
-4. For servers requiring API keys, add them to your environment or the server configuration
+1. **Install the Extension**: Install SreBuddy from the VS Code marketplace
+2. **Automatic Prompt**: On first activation, you'll see a prompt asking to install MCP servers
+3. **One-Click Install**: Click "Install Now" to automatically configure the MCP server
+4. **Restart VS Code**: Restart to activate the MCP servers
+5. **Start Using**: Use `@srebuddy` in GitHub Copilot Chat
 
-## Example Configuration
+## Manual Configuration (Optional)
+
+If you prefer manual setup or need to customize, add this to your VS Code `settings.json`:
+
+**To open settings.json:**
+
+- Press `Cmd/Ctrl + Shift + P` → Type "Preferences: Open User Settings (JSON)"
+- Or press `Cmd/Ctrl + ,` → Click the "Open Settings (JSON)" icon
 
 ```json
 {
-  "srebuddy.mcpServers": [
-    {
-      "name": "filesystem",
-      "type": "local",
-      "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/username/docs"
-      ],
-      "description": "Local documentation folder"
-    },
-    {
-      "name": "github",
-      "type": "local",
-      "command": "npx",
-      "args": ["@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_token_here"
-      },
-      "description": "GitHub repository access"
+  "mcp": {
+    "servers": {
+      "srebuddy-sqlite": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-sqlite"]
+      }
     }
-  ]
-}
-```
-
-## Environment Variables
-
-For security, it's recommended to set environment variables rather than storing tokens in VS Code settings:
-
-```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="your_github_token"
-export BRAVE_API_KEY="your_brave_api_key"
-```
-
-## Adding Custom Servers
-
-You can add both local (npx-based) and remote (HTTP-based) MCP servers:
-
-### Local Server
-
-```json
-{
-  "name": "my-local-server",
-  "type": "local",
-  "command": "npx",
-  "args": ["my-mcp-server", "--config", "path/to/config"],
-  "env": {
-    "API_KEY": "value"
   }
 }
 ```
 
-### Remote Server
+## Installation
 
-```json
-{
-  "name": "my-remote-server",
-  "type": "remote",
-  "url": "https://api.example.com/mcp",
-  "apiKey": "your_api_key"
-}
+Install the MCP server package globally:
+
+```bash
+npm install -g @modelcontextprotocol/server-sqlite
+```
+
+## Benefits
+
+- **Zero Configuration**: Works out of the box with default settings
+- **Native Performance**: Uses VS Code's optimized MCP implementation
+- **Automatic Context**: Database context is automatically available to GitHub Copilot
+- **Standard Configuration**: Uses VS Code's standard `mcp.servers` configuration
+- **No Maintenance**: VS Code handles all server management
+
+## Troubleshooting
+
+### MCP Server Not Working
+
+1. **Check Installation**: Ensure the MCP server package is installed globally
+
+   ```bash
+   npm list -g @modelcontextprotocol/server-sqlite
+   ```
+
+2. **Verify Configuration**: Check VS Code settings for `mcp.servers`
+
+   - Open settings.json: `Cmd/Ctrl + Shift + P` → "Preferences: Open User Settings (JSON)"
+   - Look for the `"mcp": { "servers": { ... } }` section
+
+3. **Restart VS Code**: Configuration changes require restart
+
+4. **Check VS Code Output**: Look for MCP-related messages in VS Code's output panel
+
+### Manual Verification
+
+Check if the MCP server is working:
+
+1. Open VS Code Command Palette (`Cmd/Ctrl + Shift + P`)
+2. Look for MCP-related commands
+3. Check that the server appears in GitHub Copilot context
+
+### Manual Installation
+
+If automatic MCP server installation fails, manually install:
+
+```bash
+npm install -g @modelcontextprotocol/server-sqlite
 ```

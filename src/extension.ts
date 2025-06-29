@@ -5,6 +5,75 @@ import { SreBuddyAgentHandler } from './agentHandler';
 import { McpServerManager } from './mcpServerManager';
 import { SreTaskParser } from './sreTaskParser';
 import { Logger } from './logger';
+import { installMcpServersToVSCode, checkExistingMcpServers } from './mcpInstaller';
+
+/**
+ * Auto-install MCP servers on first activation
+ */
+async function autoInstallMcpServers(context: vscode.ExtensionContext, logger: Logger): Promise<void> {
+    // Check if MCP servers have already been installed
+    const hasInstalledMcp = context.globalState.get('srebuddy.hasInstalledMcp', false);
+    
+    if (hasInstalledMcp) {
+        logger.info('MCP servers already installed, skipping auto-installation');
+        return;
+    }
+
+    // Check if servers are already configured
+    const existingServers = checkExistingMcpServers();
+    if (existingServers.hasServers) {
+        logger.info('MCP servers already configured, marking as installed');
+        context.globalState.update('srebuddy.hasInstalledMcp', true);
+        return;
+    }
+
+    try {
+        const choice = await vscode.window.showInformationMessage(
+            'SreBuddy: Install default MCP servers for better documentation access?',
+            { modal: false },
+            'Install Now',
+            'Skip',
+            'Don\'t Ask Again'
+        );
+
+        if (choice === 'Don\'t Ask Again') {
+            context.globalState.update('srebuddy.hasInstalledMcp', true);
+            return;
+        }
+
+        if (choice === 'Install Now') {
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: 'Installing MCP Servers',
+                cancellable: false
+            }, async (progress) => {
+                progress.report({ message: 'Setting up MCP servers...' });
+                
+                const result = await installMcpServersToVSCode();
+                
+                if (result.success) {
+                    context.globalState.update('srebuddy.hasInstalledMcp', true);
+                    logger.info(result.message);
+                    
+                    const restart = await vscode.window.showInformationMessage(
+                        `✅ ${result.message}! Restart VS Code to activate them.`,
+                        'Restart Now',
+                        'Later'
+                    );
+                    
+                    if (restart === 'Restart Now') {
+                        vscode.commands.executeCommand('workbench.action.reloadWindow');
+                    }
+                } else {
+                    logger.error(result.message);
+                    vscode.window.showWarningMessage('⚠️ MCP server installation failed. You can install manually using the setup-mcp script.');
+                }
+            });
+        }
+    } catch (error) {
+        logger.error('Error during auto-installation of MCP servers:', error);
+    }
+}
 
 let mcpServerManager: McpServerManager | undefined;
 
@@ -12,13 +81,16 @@ let mcpServerManager: McpServerManager | undefined;
  * This method is called when the extension is activated
  * The extension is activated when a chat participant is registered or on startup
  */
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     const logger = new Logger();
     logger.info('SreBuddy extension is being activated...');
 
     try {
-        // Initialize MCP Server Manager
+        // Initialize simplified MCP Server Manager (no registration needed)
         mcpServerManager = new McpServerManager(logger);
+        
+        // Auto-install MCP servers on first activation
+        await autoInstallMcpServers(context, logger);
         
         // Initialize SRE Task Parser
         const sreTaskParser = new SreTaskParser(logger);
@@ -47,9 +119,6 @@ export function activate(context: vscode.ExtensionContext) {
         
         // Register Agent Mode commands
         const commands = [
-            vscode.commands.registerCommand('srebuddy.configure', () => {
-                chatParticipant.showConfigurationUI();
-            }),
             vscode.commands.registerCommand('srebuddy.implementTask', () => {
                 agentHandler.handleImplementTask();
             }),
@@ -101,6 +170,9 @@ export function activate(context: vscode.ExtensionContext) {
         
         // Set up workspace with SreBuddy template files
         setupWorkspace(context, logger);
+        
+        // Auto-install MCP servers for new users
+        autoInstallMcpServers(context, logger);
         
     } catch (error) {
         logger.error('Failed to activate SreBuddy extension:', error);

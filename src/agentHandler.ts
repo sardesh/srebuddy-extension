@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { McpServerManager, DocumentationSearch } from './mcpServerManager';
+import { McpServerManager } from './mcpServerManager';
 import { SreTaskParser, SreImplementationPlan } from './sreTaskParser';
 import { Logger } from './logger';
 
@@ -245,19 +245,16 @@ export class SreBuddyAgentHandler {
 
                 progress.report({ increment: 60, message: 'Retrieving documentation...' });
                 
-                // Try to get additional context from MCP servers
+                // Documentation context is now provided automatically through VS Code's MCP integration
                 let additionalContext = '';
                 try {
-                    const searchResult = await this.mcpServerManager.searchDocumentation({
-                        query: `${parsedTask.target} ${parsedTask.type} ${parsedTask.environment || ''}`,
-                        maxResults: 3
-                    });
-                    
-                    if (searchResult.success && searchResult.data) {
-                        additionalContext = this.formatDocumentationResults(searchResult.data);
+                    const serverStatus = await this.mcpServerManager.getServerStatus();
+                    if (serverStatus.length > 0) {
+                        additionalContext = `\n\n## Available Documentation Sources\n\n`;
+                        additionalContext += `MCP servers provide context automatically: ${serverStatus.join(', ')}\n`;
                     }
                 } catch (error) {
-                    this.logger.warn('Could not retrieve additional documentation:', error);
+                    this.logger.warn('Could not get MCP server status:', error);
                 }
 
                 if (token.isCancellationRequested) {
